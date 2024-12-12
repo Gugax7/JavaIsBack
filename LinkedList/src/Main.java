@@ -6,12 +6,13 @@ public class Main {
     public static void main(String[] args){
         Scanner sc = new Scanner(System.in);
         LinkedList<City> list = new LinkedList<City>();
-        list.add(new City("Itatiba", 0));
-        list.add(new City("Campinas", 20));
-        list.add(new City("Sao Paulo", 75));
-        list.add(new City("Rio claro", 70));
-        list.add(new City("Jundiai", 15));
-        list.add(new City("Caraguatatuba", 420));
+        addCity(list, new City("Itatiba", 0));
+        addCity(list, new City("Campinas", 20));
+        addCity(list, new City("Sao Paulo", 75));
+        addCity(list, new City("Rio claro", 70));
+        addCity(list, new City("Jundiai", 15));
+        addCity(list, new City("sao Paulo", 75));
+        addCity(list, new City("Caraguatatuba", 420));
         var iterator =  list.listIterator();
         showMenu();
         String choose = sc.nextLine();
@@ -59,6 +60,16 @@ public class Main {
 
     public static void showMenu(){
         System.out.println("Available actions (select word or letter)\n(F)oward\n(B)ackward\n(L)ist Places\n(M)enu\n(Q)uit");
+    }
+
+    public static void addCity(LinkedList<City> list,City city){
+        for(City c : list){
+            if(c.getName().equalsIgnoreCase(city.getName())){
+                System.out.println("This place is already on list");
+                return;
+            }
+        }
+        list.add(city);
     }
 
 
