@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Interfaces.iml" filepath="$PROJECT_DIR$/Interfaces.iml" />
+      <module fileurl="file://$PROJECT_DIR$/PlaylistInnerClasses.iml" filepath="$PROJECT_DIR$/PlaylistInnerClasses.iml" />
     </modules>
   </component>
 </project>
