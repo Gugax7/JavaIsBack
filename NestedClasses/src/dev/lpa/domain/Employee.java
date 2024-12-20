@@ -1,27 +1,30 @@
-package domain;
+package dev.lpa.domain;
 
 import java.util.Comparator;
 
 public class Employee {
 
-    public static enum ComparationType{YEAR_ENTRANCE,NAME,CODE}
-
-
     public static class EmployeeComparator <T extends Employee>
             implements Comparator<Employee> {
-        ComparationType type;
+
+        private String sortType;
+
+        public EmployeeComparator() {
+            this("name");
+        }
+
+        public EmployeeComparator(String sortType) {
+            this.sortType = sortType;
+        }
+
         @Override
         public int compare(Employee o1, Employee o2) {
-            if(type == ComparationType.CODE){
-                return o1.employeeId - o2.employeeId;
-            }
-            if(type == ComparationType.YEAR_ENTRANCE){
+
+            if (sortType.equalsIgnoreCase("yearStarted")) {
                 return o1.yearStarted - o2.yearStarted;
             }
-            return o1.getName().compareTo(o2.getName());
-        }
-        public EmployeeComparator(ComparationType comparationType){
-            this.type = comparationType;
+
+            return o1.name.compareTo(o2.name);
         }
     }
 
@@ -44,6 +47,6 @@ public class Employee {
 
     @Override
     public String toString() {
-        return "%d %-8s %d".formatted(employeeId,name,yearStarted);
+        return "%d %-8s %d".formatted(employeeId, name, yearStarted);
     }
 }
