@@ -9,11 +9,11 @@ public class Bank {
         this.name = name;
         this.customers = customers;
     }
-
     public Bank(String name) {
         this.name = name;
         customers = new ArrayList<Customer>();
     }
+    
 
     public void transactionFromTo(Customer from, Customer to, Double amount){
         checkAndAddIfNew(from);

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="AbstractClassProject/src"/>
+	<classpathentry kind="src" path="ArrayList-train/src"/>
+	<classpathentry kind="src" path="Boxing/src"/>
+	<classpathentry kind="src" path="EnumProject/src"/>
+	<classpathentry kind="src" path="HashTrain/src"/>
+	<classpathentry kind="src" path="InterfaceChallenge/src"/>
+	<classpathentry kind="src" path="InterfacesProject/src"/>
+	<classpathentry kind="src" path="LinkedList/src"/>
+	<classpathentry kind="src" path="NestedClasses/src"/>
+	<classpathentry kind="src" path="PlaylistInnerClasses/src"/>
+	<classpathentry kind="src" path="Queue/src"/>
+	<classpathentry kind="output" path="AbstractClassProject/out/production/AbstractClassProject"/>
+</classpath>
