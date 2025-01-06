@@ -1,5 +1,7 @@
 package teacher1;
 
+import myown.BankAccount;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +12,7 @@ public class tBankCustomer {
     private final int customerId;
     private final List<tBankAccount> accounts = new ArrayList<>();
 
-    public tBankCustomer(String name, double checkingAmount, double savingsAmount, double investmentsAmount) {
+    tBankCustomer(String name, double checkingAmount, double savingsAmount, double investmentsAmount) {
         this.name = name;
         this.customerId = lastCustomerId++;
         accounts.add(new tBankAccount(tBankAccount.AccountType.SAVINGS,savingsAmount));
@@ -23,12 +25,21 @@ public class tBankCustomer {
         return name;
     }
 
-    public int getCustomerId() {
-        return customerId;
+    public String getCustomerId() {
+        return "%015d".formatted(customerId);
     }
 
     public List<tBankAccount> getAccounts() {
-        return new ArrayList<>(accounts);
+        return List.copyOf(accounts);
+    }
+
+    public tBankAccount getAccount(tBankAccount.AccountType type){
+        for(tBankAccount account: accounts){
+            if(account.getType() == type){
+                return account;
+            }
+        }
+        return null;
     }
 
     public String toString(){

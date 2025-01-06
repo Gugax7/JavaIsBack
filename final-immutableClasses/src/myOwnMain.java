@@ -9,7 +9,7 @@ public class myOwnMain {
     public static void main(String[] args) {
 //        tBankAccount account = new tBankAccount(tBankAccount.AccountType.CHECKING, 1500.0);
 //        System.out.println(account);
-        tBankCustomer joe = new tBankCustomer("Joe", 1000.0,2000.0,3000.0);
+        //tBankCustomer joe = new tBankCustomer("Joe", 1000.0,2000.0,3000.0);
         System.out.println(joe);
     }
 }
