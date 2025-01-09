@@ -2,10 +2,7 @@ package teacher1;
 
 import teacher1.dto.Transition;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class tBankAccount {
 
@@ -32,8 +29,12 @@ public class tBankAccount {
         return "%s $%.2f".formatted(type,balance);
     }
 
-    public Map<Long, Transition> getTransactions() {
-        return Map.copyOf(transactions);
+    public Map<Long, String> getTransactions() {
+        Map<Long,String> txMap = new LinkedHashMap<>();
+        for(var tx : transactions.entrySet()){
+            txMap.put(tx.getKey(), tx.getValue().toString());
+        }
+        return txMap;
     }
     void commitTransaction(int routingNumber,long transactionId,
                            String customerId, double amount){

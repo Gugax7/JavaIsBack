@@ -24,8 +24,17 @@ public class Transition {
     public int getRoutingNumber() {
         return routingNumber;
     }
-
     public void setRoutingNumber(int routingNumber) {
         this.routingNumber = routingNumber;
+    }
+
+    @Override
+    public String toString() {
+        return "Transition{" +
+                "routingNumber=" + routingNumber +
+                ", customerId=" + customerId +
+                ", transactionId=" + transactionId +
+                ", transactionAmount=" + transactionAmount +
+                '}';
     }
 }
