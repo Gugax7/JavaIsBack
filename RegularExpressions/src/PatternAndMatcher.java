@@ -40,6 +40,46 @@ public class PatternAndMatcher {
             System.out.println("Group = " + matcher1.group(2) + "Of level -> " + matcher1.group("level"));
         }
 
+        matcher1.reset();
+
+        matcher1.results().forEach(r -> {
+            System.out.println(r.group(1) + " " + r.group(2));
+        });
+
+
+        matcher1.reset();
+        String updatedSnippet = matcher1.replaceFirst(mr ->"<em>" + mr.group(2) + "</em>");
+        System.out.println("------------------");
+        System.out.println(updatedSnippet);
+        System.out.println(matcher1.start() + " : " + matcher1.end());
+        System.out.println(matcher1.group(2));
+
+        matcher1.usePattern(Pattern.compile("<([hH]\\d)>(.*)</\\1>"));
+
+        matcher1.reset();
+
+        System.out.println("--------------------------");
+        System.out.println("Using back reference:");
+        System.out.println(matcher1.replaceAll("<em>$2</em>"));
+
+        matcher1.reset();
+        String replacedString = matcher1.replaceFirst(mr ->"<em>" + mr.group(2) + "</em>");
+        System.out.println("------------------");
+        System.out.println(replacedString);
+        matcher1.reset();
+
+        StringBuilder sb = new StringBuilder();
+        int index = 1;
+        while (matcher1.find()) {
+            matcher1.appendReplacement(sb, switch (matcher1.group(1).toLowerCase()){
+                case "h1" -> "<head>$2</head>";
+                case "h2" -> "<em>$2</head>";
+                default -> "<$1>" + index++ + ". $2</$1>";
+            });
+        }
+        matcher1.appendTail(sb);
+        System.out.println(sb.toString());
+
 
     }
 }
