@@ -5,32 +5,32 @@ class MessageRepository{
     private boolean hasMessage = false;
 
     public synchronized String read(){
-        System.out.println("Waiting for my loop ends, HasMessage = " + hasMessage + " and needs to be true");
+        //System.out.println("Waiting for my loop ends, HasMessage = " + hasMessage + " and needs to be true");
         while(!hasMessage){
             // just waiting for message be read
             try {
-                Thread.sleep(500);
+                wait();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            System.out.print(" . ");
         }
         hasMessage = false;
+        notifyAll();
         return message;
     }
 
     public synchronized void write(String message){
-        System.out.println("Waiting for my loop ends, HasMessage = " + hasMessage + " and needs to be false");
+        //System.out.println("Waiting for my loop ends, HasMessage = " + hasMessage + " and needs to be false");
         while(hasMessage){
             // just waiting for message be read
             try {
-                Thread.sleep(500);
+                wait();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            System.out.print(" . ");
         }
         hasMessage = true;
+        notifyAll();
         this.message = message;
     }
 
@@ -58,7 +58,7 @@ class MessageWriter implements Runnable {
         String[] lines = text.split("\n");
 
         for(int i = 0; i < lines.length; i++){
-            System.out.println("Running (writing)");
+            //System.out.println("Running (writing)");
             outgoingMessage.write(lines[i]);
             try {
                 Thread.sleep(rand.nextInt(500,2000));
@@ -84,7 +84,7 @@ class MessageReader implements Runnable{
         String lastMessage = "";
 
         do{
-            System.out.println("Running (reading)");
+            //System.out.println("Running (reading)");
             try {
                 Thread.sleep(rand.nextInt(500,2000));
             } catch (InterruptedException e) {
