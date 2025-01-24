@@ -3,13 +3,24 @@ package syncronization;
 public class BankAccount {
 
     private double balance;
+    private String name;
 
-    public BankAccount(double balance){
+    private final Object lockName = new Object();
+    private final Object lockBalance = new Object();
+
+    public BankAccount(String name, double balance){
         this.balance = balance;
+        this.name = name;
     }
 
     public double getBalance() {
         return balance;
+    }
+    public void setName(String name){
+        synchronized (lockName){
+            System.out.println("Setting name from : " + this.name + " to : " + name);
+            this.name = name;
+        }
     }
 
     public synchronized void withdraw(double amount) {
@@ -40,11 +51,21 @@ public class BankAccount {
             throw new RuntimeException(e);
         }
 
-        synchronized (this){
+        synchronized (lockBalance){
             double originalBalance = balance;
             balance += amount;
             System.out.println("Starting balance: " + originalBalance + " DEPOSIT:(" + amount + ")   new balance: " + balance );
+            addPromotional(amount);
         }
     }
+    private void addPromotional(double value){
+        if(value >= 5000.0){
+            synchronized (lockBalance) {
+                System.out.println("Congrats you've won promotional amount on your account");
+                balance+=25.0;
+            }
+        }
+    }
+
 
 }
