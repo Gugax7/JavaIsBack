@@ -1,36 +1,55 @@
 import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 class MessageRepository{
     private String message;
     private boolean hasMessage = false;
+    private final Lock lock = new ReentrantLock();
 
-    public synchronized String read(){
-        //System.out.println("Waiting for my loop ends, HasMessage = " + hasMessage + " and needs to be true");
-        while(!hasMessage){
-            // just waiting for message be read
+    public String read(){
+        if(lock.tryLock()) {
             try {
-                wait();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                //System.out.println("Waiting for my loop ends, HasMessage = " + hasMessage + " and needs to be true");
+                while (!hasMessage) {
+                    // just waiting for message be read
+                    try {
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                hasMessage = false;
+            } finally {
+                lock.unlock();
             }
         }
-        hasMessage = false;
-        notifyAll();
+        else{
+            System.out.println("read is blocked**");
+            hasMessage = false;
+        }
         return message;
     }
 
     public synchronized void write(String message){
-        //System.out.println("Waiting for my loop ends, HasMessage = " + hasMessage + " and needs to be false");
-        while(hasMessage){
-            // just waiting for message be read
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+        if(lock.tryLock()) {
+           try { //System.out.println("Waiting for my loop ends, HasMessage = " + hasMessage + " and needs to be false");
+               while (hasMessage) {
+                   // just waiting for message be read
+                   try {
+                       Thread.sleep(500);
+                   } catch (InterruptedException e) {
+                       throw new RuntimeException(e);
+                   }
+               }
+               hasMessage = true;
+           }finally {
+               lock.unlock();
+           }
+        }else{
+            hasMessage = true;
+            System.out.println("**write is blocked");
         }
-        hasMessage = true;
-        notifyAll();
         this.message = message;
     }
 
@@ -106,11 +125,19 @@ public class Main {
         reader.start();
         writer.start();
 
-        try {
-            writer.join();
-            reader.join();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        writer.setUncaughtExceptionHandler((thread,exp)->{
+            System.out.println("Writer has an exception: " + exp);
+            if(reader.isAlive()){
+                System.out.println("Interrupting reader");
+                reader.interrupt();
+            }
+        });
+        reader.setUncaughtExceptionHandler((thread,exp)->{
+            System.out.println("Reader has an exception: " + exp);
+            if(writer.isAlive()){
+                System.out.println("Interrupting writer");
+                writer.interrupt();
+            }
+        });
     }
 }
