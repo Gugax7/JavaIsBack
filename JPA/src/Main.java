@@ -11,7 +11,7 @@ public class Main {
             var transaction = entityManager.getTransaction();
             transaction.begin();
 //            entityManager.persist(new Artist("Player Tauz"));
-            Artist artist = entityManager.find(Artist.class, 201);
+            Artist artist = entityManager.find(Artist.class, 103);
             System.out.println(artist);
             artist.removeDuplicates();
 //            artist.setArtist_name("Tauz");

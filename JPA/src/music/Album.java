@@ -2,6 +2,10 @@ package music;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+
 @Entity
 @Table(name = "albums")
 public class Album implements Comparable<Album> {
@@ -13,6 +17,9 @@ public class Album implements Comparable<Album> {
 
     @Column(name= "album_name")
     private String album_name;
+    @OneToMany
+    @JoinColumn(name="album_id")
+    List<Songs> playlist = new ArrayList<>();
 
     public Album() {
     }
@@ -26,6 +33,11 @@ public class Album implements Comparable<Album> {
         this.album_name = album_name;
     }
 
+    public List<Songs> getPlaylist() {
+        return playlist;
+    }
+
+
     public String getAlbum_name() {
         return album_name;
     }
@@ -36,9 +48,16 @@ public class Album implements Comparable<Album> {
 
     @Override
     public String toString() {
+
+        playlist.sort(Comparator.comparing(Songs::getTrackNumber));
+        StringBuilder sb = new StringBuilder();
+        for(Songs s: playlist) {
+            sb.append("\n\t").append(s);
+        }
         return "album{" +
                 "album_id=" + album_id +
                 ", album_name='" + album_name + '\'' +
+                ", songs ='" + sb +
                 '}';
     }
 
