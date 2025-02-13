@@ -7,6 +7,7 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static java.net.HttpURLConnection.HTTP_OK;
 
@@ -58,6 +59,11 @@ public class SimpleHttpServer {
                                             firstName == null ? "" : firstName,
                                             lastName == null ? "" : lastName);
 
+                try {
+                    TimeUnit.SECONDS.sleep(5);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 var bytes = response.getBytes();
                 exchange.sendResponseHeaders(HTTP_OK,bytes.length);
                 exchange.getResponseBody().write(bytes);
