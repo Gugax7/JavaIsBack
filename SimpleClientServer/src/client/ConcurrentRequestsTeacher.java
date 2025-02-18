@@ -3,6 +3,7 @@ package client;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -18,61 +19,69 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class ConcurrentRequests {
+public class ConcurrentRequestsTeacher {
+
+    private static final Lock lock = new ReentrantLock();
 
     private static final Path orderTracking = Path.of("orderTracking.json");
-    private static final Lock lock = new ReentrantLock();
+
     public static void main(String[] args) {
 
-        Map<String, Integer> orderMap =
-                Map.of("apples", 400,
-                       "bananas", 500,
-                       "carrots", 120,
-                       "mango",2000,
-                       "tomatoes", 10000);
+        Map<String,Integer> orderMap =
+                Map.of( "apples", 500,
+                        "oranges", 1000,
+                        "bananas", 750,
+                        "carrots", 2000,
+                        "cantaloupes", 100 );
 
         String urlParams = "product=%s&amount=%d";
+
         String urlBase = "http://localhost:8080";
 
         List<URI> sites = new ArrayList<>();
-        orderMap.forEach((k,v) -> sites.add(URI.create(
-                urlBase + "?" + urlParams.formatted(k,v))));
+        orderMap.forEach( (k,v) -> sites.add(URI.create(
+                urlBase + "?" + urlParams.formatted(k, v)
+        )));
 
         HttpClient client = HttpClient.newHttpClient();
+//        sendGets(client, sites);
 
-        if(!Files.exists(orderTracking)){
+        if (!Files.exists(orderTracking)) {
             try {
                 Files.createFile(orderTracking);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-
-        sendPostsGetJSON(client,urlBase,urlParams,orderMap);
-
+        sendPostsGetJSON(client, urlBase, urlParams, orderMap);
     }
-    private static void writeToFile(String content){
+
+    public static void writeToFile(String content) {
+
         lock.lock();
-        try{
-            Files.writeString(orderTracking,content+"\r",
+        try {
+            Files.writeString(orderTracking, content + "\r",
                     StandardOpenOption.APPEND);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }finally {
+            System.out.println(e.getMessage());
+        } finally {
             lock.unlock();
         }
     }
 
-    private static void sendGets(HttpClient client, List<URI> uris){
+    private static void sendGets(HttpClient client, List<URI> uris) {
+
         var futures = uris.stream()
-                .map(HttpRequest::newBuilder)
+                .map(uri -> HttpRequest.newBuilder(uri))
                 .map(HttpRequest.Builder::build)
                 .map(request -> client.sendAsync(
                         request, HttpResponse.BodyHandlers.ofString()))
                 .toList();
+
         var allFutureRequests = CompletableFuture.allOf(
                 futures.toArray(new CompletableFuture<?>[0])
         );
+
         allFutureRequests.join();
 
         futures.forEach(f -> {
@@ -80,51 +89,32 @@ public class ConcurrentRequests {
         });
     }
 
-    private static void sendPosts(HttpClient client, List<URI> uris){
-        var futures = uris.stream()
-                .map(uri -> HttpRequest.newBuilder()
-                        .POST(HttpRequest.BodyPublishers.ofString(
-                                uri.toString().substring(uri.toString().indexOf("?") + 1))))
-                .map(HttpRequest.Builder::build)
-                .map(request -> client.sendAsync(request,HttpResponse.BodyHandlers.ofString()))
-                .toList();
-
-        var allFutureRequests = CompletableFuture.allOf(
-                futures.toArray(new CompletableFuture<?>[0])
-        );
-        allFutureRequests.join();
-        futures.forEach(f -> {
-            System.out.println(f.join().body());
-        });
-
-    }
-
-
-
-    private static void teacherSendPosts(HttpClient client, String baseURI,
-                                         String paramString, Map<String, Integer> orders){
+    private static void sendPosts(HttpClient client, String baseURI,
+                                  String paramString, Map<String,Integer> orders) {
 
         var futures = orders.entrySet().stream()
-                .map(e -> paramString.formatted(e.getKey(),e.getValue()))
-                .map(uri -> HttpRequest.newBuilder(URI.create(baseURI))
-                        .POST(HttpRequest.BodyPublishers.ofString(uri)))
+                .map(e -> paramString.formatted(
+                        e.getKey(), e.getValue()))
+                .map(s -> HttpRequest.newBuilder(URI.create(baseURI))
+                        .POST(HttpRequest.BodyPublishers.ofString(s)))
                 .map(HttpRequest.Builder::build)
                 .map(request -> client.sendAsync(
                         request, HttpResponse.BodyHandlers.ofString()))
                 .toList();
+
         var allFutureRequests = CompletableFuture.allOf(
                 futures.toArray(new CompletableFuture<?>[0])
         );
+
         allFutureRequests.join();
         List<String> lines = new ArrayList<>();
-
 
         futures.forEach(f -> {
             lines.add(f.join().body());
         });
 
         try {
-            Files.write(orderTracking,lines, StandardOpenOption.APPEND);
+            Files.write(orderTracking, lines, StandardOpenOption.APPEND);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -159,29 +149,66 @@ public class ConcurrentRequests {
         });
     }
 
-    private static void sendPostsSafeFileWrite(HttpClient client, String baseURI,
-                                         String paramString, Map<String, Integer> orders){
+    private static void sendPostsWithFileResponse(HttpClient client, String baseURI,
+                                                  String paramString, Map<String,Integer> orders) {
 
         var futures = orders.entrySet().stream()
-                .map(e -> paramString.formatted(e.getKey(),e.getValue()))
-                .map(uri -> HttpRequest.newBuilder(URI.create(baseURI))
-                        .POST(HttpRequest.BodyPublishers.ofString(uri)))
+                .map(e -> paramString.formatted(
+                        e.getKey(), e.getValue()))
+                .map(s -> HttpRequest.newBuilder(URI.create(baseURI))
+                        .POST(HttpRequest.BodyPublishers.ofString(s)))
                 .map(HttpRequest.Builder::build)
                 .map(request -> client.sendAsync(
-                        request, HttpResponse.BodyHandlers.ofString())
-                        .thenAccept(r -> writeToFile(r.body())))
+                        request, HttpResponse.BodyHandlers.ofFile(orderTracking,
+                                StandardOpenOption.APPEND)))
                 .toList();
+
         var allFutureRequests = CompletableFuture.allOf(
                 futures.toArray(new CompletableFuture<?>[0])
         );
+
         allFutureRequests.join();
-        List<String> lines = new ArrayList<>();
+    }
 
+    private static void sendPostsFileHandler(HttpClient client, String baseURI,
+                                             String paramString, Map<String,Integer> orders) {
 
-        try {
-            Files.write(orderTracking,lines, StandardOpenOption.APPEND);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        var handler = new ThreadSafeFileHandler(orderTracking);
+        var futures = orders.entrySet().stream()
+                .map(e -> paramString.formatted(
+                        e.getKey(), e.getValue()))
+                .map(s -> HttpRequest.newBuilder(URI.create(baseURI))
+                        .POST(HttpRequest.BodyPublishers.ofString(s)))
+                .map(HttpRequest.Builder::build)
+                .map(request -> client.sendAsync(
+                        request, handler))
+                .toList();
+
+        var allFutureRequests = CompletableFuture.allOf(
+                futures.toArray(new CompletableFuture<?>[0])
+        );
+
+        allFutureRequests.join();
+    }
+
+    private static void sendPostsSafeFileWrite(HttpClient client, String baseURI,
+                                               String paramString, Map<String,Integer> orders) {
+
+        var futures = orders.entrySet().stream()
+                .map(e -> paramString.formatted(
+                        e.getKey(), e.getValue()))
+                .map(s -> HttpRequest.newBuilder(URI.create(baseURI))
+                        .POST(HttpRequest.BodyPublishers.ofString(s)))
+                .map(HttpRequest.Builder::build)
+                .map(request -> client.sendAsync(
+                                request, HttpResponse.BodyHandlers.ofString())
+                        .thenAcceptAsync(r -> writeToFile(r.body())))
+                .toList();
+
+        var allFutureRequests = CompletableFuture.allOf(
+                futures.toArray(new CompletableFuture<?>[0])
+        );
+
+        allFutureRequests.join();
     }
 }
