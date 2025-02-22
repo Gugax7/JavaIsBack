@@ -8,9 +8,8 @@ import org.springframework.context.annotation.Bean;
 public class SpringIntroApplication {
 
 	public static void main(String[] args) {
-		var ctx = SpringApplication.run(SpringIntroApplication.class, args);
-		MyFirstService firstService = ctx.getBean(MyFirstService.class);
-		System.out.println(firstService.tellStory());
+		SpringApplication.run(SpringIntroApplication.class, args);
+
 	}
 
 
